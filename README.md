@@ -1,4 +1,4 @@
-# graphvae_approx
+# mol_mpnn
 Tensorflow implementation for efficient learning of message passing neural networks for molecular property production
 
 ## Components
