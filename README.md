@@ -4,7 +4,7 @@ Tensorflow implementation for efficient learning of message passing neural netwo
 ## Components
 - **preprocessing.py** - script for preprocessing data
 - **train.py** - script for model training
-- **test.py** - script for model evaluation (molecular graph generation)
+- **test.py** - script for model evaluation (molecular property prediction)
 - **MPNN.py** - model architecture
 
 ## Dependencies
