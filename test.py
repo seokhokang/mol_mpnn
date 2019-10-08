@@ -32,13 +32,13 @@ dim_y = DY.shape[1]
 print(DV.shape, DE.shape, DP.shape, DY.shape)
 
 model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y, dr=0.2, lr=0.0001, batch_size=1)
-np.set_printoptions(precision=3, suppress=True)
+np.set_printoptions(precision=5, suppress=True)
 
 with model.sess:
     model.saver.restore(model.sess, save_path)  
     DY_hat = model.test(DV, DE, DP)
     
-    maelist = [mean_absolute_error(DY[:,yid:yid+1], DY_hat[:,yid:yid+1]) for yid in range(dim_y)]
+    maelist = np.array([mean_absolute_error(DY[:,yid:yid+1], DY_hat[:,yid:yid+1]) for yid in range(dim_y)])
     mae = np.sum(maelist)
     print(':: MAE ', mae, mae/12)
     print(':: list ', maelist) 
