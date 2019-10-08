@@ -38,5 +38,7 @@ with model.sess:
     model.saver.restore(model.sess, save_path)  
     DY_hat = model.test(DV, DE, DP)
     
-    mae = np.sum([mean_absolute_error(DY[:,yid:yid+1], DY_hat[:,yid:yid+1]) for yid in range(dim_y)])
-    print(':: MAE ', mae)
+    maelist = [mean_absolute_error(DY[:,yid:yid+1], DY_hat[:,yid:yid+1]) for yid in range(dim_y)]
+    mae = np.sum(maelist)
+    print(':: MAE ', mae, mae/12)
+    print(':: list ', maelist) 

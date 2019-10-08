@@ -49,7 +49,7 @@ class Model(object):
             self.sess = tf.Session(config=config)
 
 
-    def train(self, DV_trn, DE_trn, DP_trn, DY_trn, DV_val, DE_val, DP_val, DY_val, save_path=None):
+    def train(self, DV_trn, DE_trn, DP_trn, DY_trn, DV_val, DE_val, DP_val, DY_val, load_path=None, save_path=None):
 
         ## objective function
         cost_Y_total = tf.reduce_mean(tf.reduce_sum(tf.abs(self.Y - self.Y_pred), 1))
@@ -64,13 +64,16 @@ class Model(object):
         train_op_indiv = [tf.train.AdamOptimizer(learning_rate=self.lr * 0.1).minimize(cost_Y_indiv[yid], var_list=vars_Y[yid]) for yid in range(self.dim_y)] 
                 
         self.sess.run(tf.initializers.global_variables())            
-        np.set_printoptions(precision=3, suppress=True)
+        np.set_printoptions(precision=5, suppress=True)
 
         n_batch = int(len(DV_trn)/self.batch_size)
         n_batch_val = int(len(DV_val)/self.batch_size)
 
+        if load_path is not None:
+            self.saver.restore(self.sess, load_path)
+            
         ## tranining
-        max_epoch=200
+        max_epoch=500
         print('::: training')
         for yid in range(-1, self.dim_y):
         
@@ -111,7 +114,7 @@ class Model(object):
                 print('--evaluation yid: ', yid, ' epoch id: ', epoch, ' val MAE: ', val_t[epoch], 'BEST: ', np.min(val_t[0:epoch+1]), np.min(val_t[0:epoch+1])/self.dim_y)
                 print('--evaluation yid: ', yid, ' list: ', val_mse)         
               
-                if epoch > 10 and np.min(val_t[0:epoch-10]) < np.min(val_t[epoch-10:epoch+1]):
+                if epoch > 20 and np.min(val_t[0:epoch-20]) < np.min(val_t[epoch-20:epoch+1]):
                     print('--termination condition is met')
                     break
                 

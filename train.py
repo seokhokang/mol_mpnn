@@ -61,5 +61,6 @@ model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y, dr=0.2, lr=0.0001)
 
 print(':: train model')
 with model.sess:
+    load_path=None
     save_path=save_dict+'MPNN_model.ckpt'
-    model.train(DV_trn, DE_trn, DP_trn, DY_trn, DV_val, DE_val, DP_val, DY_val, save_path)
+    model.train(DV_trn, DE_trn, DP_trn, DY_trn, DV_val, DE_val, DP_val, DY_val, load_path, save_path)
