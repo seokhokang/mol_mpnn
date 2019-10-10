@@ -148,7 +148,7 @@ for i, mol in enumerate(molsuppl):
     DE.append(np.array(edge))
     DP.append(np.array(proximity))
     DY.append(np.array(property))
-    Dsmi.append(mol.GetProp('name'))
+    Dsmi.append(Chem.MolToSmiles(mol))
 
     if i % 1000 == 0:
         print(i, flush=True)
