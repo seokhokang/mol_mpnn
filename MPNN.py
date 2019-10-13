@@ -109,10 +109,10 @@ class Model(object):
                 
                 # validation
                 DY_val_hat = self.test(DV_val, DE_val, DP_val)
-                val_mse = np.array([mean_absolute_error(DY_val[:,yid:yid+1], DY_val_hat[:,yid:yid+1]) for yid in range(self.dim_y)])
-                val_t[epoch] = np.sum(val_mse)
+                val_mae = np.array([mean_absolute_error(DY_val[:,yid:yid+1], DY_val_hat[:,yid:yid+1]) for yid in range(self.dim_y)])
+                val_t[epoch] = np.sum(val_mae)
                 print('--evaluation yid: ', yid, ' epoch id: ', epoch, ' val MAE: ', val_t[epoch], 'BEST: ', np.min(val_t[0:epoch+1]), np.min(val_t[0:epoch+1])/self.dim_y)
-                print('--evaluation yid: ', yid, ' list: ', val_mse)         
+                print('--evaluation yid: ', yid, ' list: ', val_mae)         
               
                 if epoch > 20 and np.min(val_t[0:epoch-20]) < np.min(val_t[epoch-20:epoch+1]):
                     print('--termination condition is met')
