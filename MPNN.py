@@ -74,11 +74,16 @@ class Model(object):
             
         ## tranining
         max_epoch=500
+        self.saver.save(self.sess, save_path)
+        
         print('::: training')
         for yid in range(-1, self.dim_y):
         
+            self.saver.restore(self.sess, save_path)
+        
             trn_log = np.zeros(max_epoch)
             val_t = np.zeros(max_epoch)
+            
             for epoch in range(max_epoch):
     
                 # training
