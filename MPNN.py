@@ -61,7 +61,7 @@ class Model(object):
         assert len(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)) == np.sum([len(vs) for vs in vars_Y]) + len(vars_MP)
         
         train_op_total = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost_Y_total)
-        train_op_indiv = [tf.train.AdamOptimizer(learning_rate=self.lr * 0.1).minimize(cost_Y_indiv[yid], var_list=vars_Y[yid]) for yid in range(self.dim_y)] 
+        train_op_indiv = [tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost_Y_indiv[yid], var_list=vars_Y[yid]) for yid in range(self.dim_y)] 
                 
         self.sess.run(tf.initializers.global_variables())            
         np.set_printoptions(precision=5, suppress=True)

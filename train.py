@@ -57,7 +57,7 @@ DY_val = DY[n_trn:n_trn+n_val]
 
 print(DV_trn.shape, DV_val.shape)
 
-model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y, dr=0.2, lr=0.0001)
+model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y, dr=0, lr=0.0001)
 
 print(':: train model')
 with model.sess:
