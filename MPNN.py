@@ -162,18 +162,15 @@ class Model(object):
 
         def _embed_node(inp):
         
-            inp = tf.reshape(inp, [batch_size * self.n_node, int(inp.shape[2])])
             inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.tanh)
             inp = tf.layers.dense(inp, hiddendim, activation = tf.nn.tanh)
         
-            inp = tf.reshape(inp, [batch_size, self.n_node, hiddendim])
             inp = inp * mask
         
             return inp
 
         def _edge_nn(inp):
         
-            inp = tf.reshape(inp, [batch_size * self.n_node * self.n_node, int(inp.shape[3])])
             inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.tanh)
             inp = tf.layers.dense(inp, hiddendim * hiddendim)
         
@@ -238,20 +235,14 @@ class Model(object):
             
             def _attn_nn(inp, hdim):
             
-                inp = tf.reshape(inp, [batch_size * self.n_node, int(inp.shape[2])])
                 inp = tf.layers.dense(inp, hdim, activation = tf.nn.sigmoid)
                 
-                inp = tf.reshape(inp, [batch_size, self.n_node, hdim])
-                 
                 return inp
         
             def _tanh_nn(inp, hdim):
             
-                inp = tf.reshape(inp, [batch_size * self.n_node, int(inp.shape[2])])
                 inp = tf.layers.dense(inp, hdim)
             
-                inp = tf.reshape(inp, [batch_size, self.n_node, hdim])
-                
                 return inp
 
             attn_wgt = _attn_nn(tf.concat([hidden_0, hidden_n], 2), aggrdim) 
