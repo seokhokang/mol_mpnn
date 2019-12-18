@@ -162,7 +162,9 @@ class Model(object):
 
         def _embed_node(inp):
         
-            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.tanh)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
             inp = tf.layers.dense(inp, hiddendim, activation = tf.nn.tanh)
         
             inp = inp * mask
@@ -171,7 +173,9 @@ class Model(object):
 
         def _edge_nn(inp):
         
-            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.tanh)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
+            inp = tf.layers.dense(inp, hiddendim * 4, activation = tf.nn.relu)
             inp = tf.layers.dense(inp, hiddendim * hiddendim)
         
             inp = tf.reshape(inp, [batch_size, self.n_node, self.n_node, hiddendim, hiddendim])
@@ -249,7 +253,7 @@ class Model(object):
             tanh_wgt = _tanh_nn(hidden_n, aggrdim)
             readout = tf.reduce_mean(tf.multiply(tanh_wgt, attn_wgt) * mask, 1)
             for _ in range(3):
-                readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.tanh)
+                readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.relu)
                 readout = tf.layers.dropout(readout, drate, training = self.trn_flag)
                 
             pred = tf.layers.dense(readout, outdim) 
