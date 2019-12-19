@@ -52,14 +52,12 @@ class Model(object):
     def train(self, DV_trn, DE_trn, DP_trn, DY_trn, DV_val, DE_val, DP_val, DY_val, load_path=None, save_path=None):
 
         ## objective function
-        cost_Y_total = tf.reduce_mean(tf.reduce_sum(tf.abs(self.Y - self.Y_pred), 1))
-        cost_Y_indiv = [tf.reduce_mean(tf.abs(self.Y[:,yid:yid+1] - self.Y_pred[:,yid:yid+1])) for yid in range(self.dim_y)]
+        cost_Y_total = tf.reduce_mean(tf.reduce_sum(tf.square(self.Y - self.Y_pred), 1))
+        cost_Y_indiv = [tf.reduce_mean(tf.square(self.Y[:,yid:yid+1] - self.Y_pred[:,yid:yid+1])) for yid in range(self.dim_y)]
 
         vars_MP = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MP')
         vars_Y = [tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Y/'+str(yid)+'/readout') for yid in range(self.dim_y)]
 
-        assert len(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)) == np.sum([len(vs) for vs in vars_Y]) + len(vars_MP)
-        
         train_op_total = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost_Y_total)
         train_op_indiv = [tf.train.AdamOptimizer(learning_rate=self.lr).minimize(cost_Y_indiv[yid], var_list=vars_Y[yid]) for yid in range(self.dim_y)] 
                 
@@ -67,7 +65,6 @@ class Model(object):
         np.set_printoptions(precision=5, suppress=True)
 
         n_batch = int(len(DV_trn)/self.batch_size)
-        n_batch_val = int(len(DV_val)/self.batch_size)
 
         if load_path is not None:
             self.saver.restore(self.sess, load_path)
