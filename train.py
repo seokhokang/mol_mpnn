@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 n_max=29
 dim_node=25
 dim_edge=11
-atom_list=['H','C','N','O','F',]
+atom_list=['H','C','N','O','F']
 
 data_path = './QM9_graph.pkl'
 save_path = './MPNN_model.ckpt'

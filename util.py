@@ -4,7 +4,7 @@ from rdkit import Chem
 n_max=29
 dim_node=25
 dim_edge=11
-atom_list=['H','C','N','O','F',]
+atom_list=['H','C','N','O','F']
 
 def _permutation(set):
     permid = np.random.permutation(len(set[0]))
