@@ -16,7 +16,7 @@ molprops = np.array(pds.read_csv('./gdb9.sdf.csv').as_matrix())
 n_max=29
 dim_node=25
 dim_edge=11
-atom_list=['H','C','N','O','F',]
+atom_list=['H','C','N','O','F']
 
 rdBase.DisableLog('rdApp.error') 
 rdBase.DisableLog('rdApp.warning')
