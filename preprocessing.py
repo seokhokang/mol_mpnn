@@ -1,98 +1,25 @@
 import numpy as np
 import pickle as pkl
 import os, sys, sparse
-from rdkit import Chem, RDConfig
+from util import atomFeatures, bondFeatures
+from rdkit import Chem, RDConfig, rdBase
 from rdkit.Chem import AllChem, ChemicalFeatures
 from sklearn.metrics.pairwise import euclidean_distances
 import pandas as pds
 
-opt=sys.argv[1]
 
+# QM9 dataset can be downloaded from
+# http://deepchem.io.s3-website-us-west-1.amazonaws.com/datasets/gdb9.tar.gz
+molsuppl = Chem.SDMolSupplier('./gdb9.sdf', removeHs=False)
+molprops = np.array(pds.read_csv('./gdb9.sdf.csv').as_matrix())
 
-def to_onehot(val, cat):
+n_max=29
+dim_node=25
+dim_edge=11
+atom_list=['H','C','N','O','F',]
 
-    vec = np.zeros(len(cat))
-    for i, c in enumerate(cat):
-        if val == c: vec[i] = 1
-
-    if np.sum(vec) == 0: print('* exception: missing category', val)
-    assert np.sum(vec) == 1
-
-    return vec
-
-def atomFeatures(aid, mol, rings, donor_list, acceptor_list):
-
-    def _rings(aid, rings):
-
-        vec = np.zeros(6)
-        for ring in rings:
-            if aid in ring and len(ring) <= 8:
-                vec[len(ring) - 3] += 1
-
-        return vec
-
-    def _da(aid, donor_list, acceptor_list):
-
-        vec = np.zeros(2)
-        if aid in donor_list:
-            vec[0] = 1
-        elif aid in acceptor_list:
-            vec[1] = 1
-        
-        return vec
-
-    def _chiral(a):
-        try:
-            vec = to_onehot(a.GetProp('_CIPCode'), ['R','S'])
-        except:
-            vec = np.zeros(2)
-        
-        return vec
-    
-    a = mol.GetAtomWithIdx(aid)
-        
-    v1 = to_onehot(a.GetSymbol(), atom_list)
-    v2 = to_onehot(str(a.GetHybridization()), ['S','SP','SP2','SP3','SP3D','SP3D2'])[1:]
-    v3 = [a.GetAtomicNum(), a.GetDegree(), a.GetFormalCharge(), a.GetTotalNumHs(), a.GetImplicitValence(), a.GetNumRadicalElectrons(), int(a.GetIsAromatic())]
-    v4 = _rings(aid, rings)
-    v5 = _da(aid, donor_list, acceptor_list)
-    v6 = _chiral(a)
-
-    return np.concatenate([v1, v2, v3, v4, v5, v6], axis=0)
-
-def bondFeatures(bid1, bid2, mol, rings):
-
-    bondpath = Chem.GetShortestPath(mol, bid1, bid2)
-    bonds = [mol.GetBondBetweenAtoms(bondpath[t], bondpath[t + 1]) for t in range(len(bondpath) - 1)]
-    
-    samering = 0
-    for ring in rings:
-        if bid1 in ring and bid2 in ring:
-            samering = 1
-
-    if len(bonds)==1:
-        v1 = to_onehot(str(bonds[0].GetBondType()), ['SINGLE', 'DOUBLE', 'TRIPLE', 'AROMATIC'])
-        v2 = to_onehot(str(bonds[0].GetStereo()), ['STEREOZ', 'STEREOE','STEREOANY','STEREONONE'])[:3]
-        v3 = [int(bonds[0].GetIsConjugated()), int(bonds[0].IsInRing())]
-    else:
-        v1 = np.zeros(4)
-        v2 = np.zeros(3)
-        v3 = np.zeros(2)
-    
-    v4 = [len(bonds), samering]
-        
-    return np.concatenate([v1, v2, v3, v4], axis=0)
-
-
-#data
-n_max=38
-dim_node=7 + 5 + 7 + 6 + 2 + 2
-dim_edge=4 + 3 + 2 + 2
-
-atom_list=['H','C','N','O','F','S','Cl']
-
-molsuppl = np.array(Chem.SDMolSupplier('./'+opt+'_mol.sdf', removeHs=False))
-molprops = np.array(pds.read_csv('./'+opt+'_target.csv').as_matrix())
+rdBase.DisableLog('rdApp.error') 
+rdBase.DisableLog('rdApp.warning')
 
 fdef_name = os.path.join(RDConfig.RDDataDir, 'BaseFeatures.fdef')
 chem_feature_factory = ChemicalFeatures.BuildFeatureFactory(fdef_name)
@@ -104,6 +31,12 @@ DY = []
 Dsmi = []
 for i, mol in enumerate(molsuppl):
 
+    if mol==None: continue
+    try: Chem.SanitizeMol(mol)
+    except: continue
+    smi = Chem.MolToSmiles(mol)
+    if '.' in Chem.MolToSmiles(mol): continue
+    
     Chem.rdmolops.AssignAtomChiralTagsFromStructure(mol)
     Chem.rdmolops.AssignStereochemistry(mol)   
     
@@ -123,12 +56,12 @@ for i, mol in enumerate(molsuppl):
             acceptor_list.append (feats[j].GetAtomIds()[0])
     
     # node DV
-    node = np.zeros((n_max, dim_node), dtype=int)
+    node = np.zeros((n_max, dim_node), dtype=np.int8)
     for j in range(n_atom):
         node[j, :] = atomFeatures(j, mol, rings, donor_list, acceptor_list)
     
     # edge DE
-    edge = np.zeros((n_max, n_max, dim_edge), dtype=int)
+    edge = np.zeros((n_max, n_max, dim_edge), dtype=np.int8)
     for j in range(n_atom - 1):
         for k in range(j + 1, n_atom):
             edge[j, k, :] = bondFeatures(j, k, mol, rings)
@@ -140,22 +73,22 @@ for i, mol in enumerate(molsuppl):
     proximity[:n_atom, :n_atom] = euclidean_distances(pos)
 
     # property DY    
-    pid = np.where(molprops[:,0]==int(mol.GetProp('name')))[0][0]
-    property = molprops[pid, 1:]
+    pid = np.where(molprops[:,0]=='gdb_'+str(i+1))[0][0]
+    property = molprops[pid, 4:16]
 
     # append
     DV.append(np.array(node))
     DE.append(np.array(edge))
     DP.append(np.array(proximity))
     DY.append(np.array(property))
-    Dsmi.append(Chem.MolToSmiles(mol))
+    Dsmi.append(smi)
 
     if i % 1000 == 0:
-        print(i, flush=True)
+        print(i+1, Chem.MolToSmiles(Chem.RemoveHs(mol)), property, flush=True)
 
 # np array    
-DV = np.asarray(DV, dtype=int)
-DE = np.asarray(DE, dtype=int)
+DV = np.asarray(DV, dtype=np.int8)
+DE = np.asarray(DE, dtype=np.int8)
 DP = np.asarray(DP)
 DY = np.asarray(DY)
 Dsmi = np.asarray(Dsmi)
@@ -164,6 +97,8 @@ Dsmi = np.asarray(Dsmi)
 DV = sparse.COO.from_numpy(DV)
 DE = sparse.COO.from_numpy(DE)
 
+print(DV.shape, DE.shape, DP.shape, DY.shape)
+
 # save
-with open(opt+'_graph.pkl','wb') as fw:
+with open('QM9_graph.pkl','wb') as fw:
     pkl.dump([DV, DE, DP, DY, Dsmi], fw)
