@@ -23,8 +23,7 @@ DE = DE.todense()
 DP = np.expand_dims(DP, 3)
 
 scaler = StandardScaler()
-scaler.fit(DY)
-DY = scaler.transform(DY)
+DY = scaler.fit_transform(DY)
 
 dim_atom = len(atom_list)
 dim_y = DY.shape[1]

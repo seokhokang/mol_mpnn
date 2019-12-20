@@ -53,10 +53,10 @@ class Model(object):
         ## objective function
         reg = tf.square(tf.concat([tf.reshape(v, [-1]) for v in tf.trainable_variables()], 0))
         l2_loss = 1e-5 * tf.reduce_mean(reg)
-        
+
         cost_Y_total = tf.reduce_mean(tf.reduce_sum(tf.square(self.Y - self.Y_pred), 1))
         cost_Y_indiv = [tf.reduce_mean(tf.square(self.Y[:,yid:yid+1] - self.Y_pred[:,yid:yid+1])) for yid in range(self.dim_y)]
-
+        
         vars_MP = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MP')
         vars_Y = [tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Y/'+str(yid)+'/readout') for yid in range(self.dim_y)]
 
