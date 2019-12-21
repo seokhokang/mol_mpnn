@@ -251,10 +251,13 @@ class Model(object):
             attn_wgt = _attn_nn(tf.concat([hidden_0, hidden_n], 2), aggrdim) 
             tanh_wgt = _tanh_nn(hidden_n, aggrdim)
             readout = tf.reduce_mean(tf.multiply(tanh_wgt, attn_wgt) * mask, 1)
-            for _ in range(3):
-                readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.relu)
-                readout = tf.layers.dropout(readout, drate, training = self.trn_flag)
-                
+            
+            readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.relu)
+            readout = tf.layers.dropout(readout, drate, training = self.trn_flag)
+            readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.relu)
+            readout = tf.layers.dropout(readout, drate, training = self.trn_flag)
+            readout = tf.layers.dense(readout, aggrdim, activation = tf.nn.relu)
+            
             pred = tf.layers.dense(readout, outdim) 
     
             return pred
