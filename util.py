@@ -6,9 +6,9 @@ dim_node=25
 dim_edge=11
 atom_list=['H','C','N','O','F']
 
-def _permutation(set):
-    
-    np.random.seed(134)
+def _permutation(set, seed = 134):
+
+    np.random.seed(seed)
     permid = np.random.permutation(len(set[0]))
     for i in range(len(set)):
         set[i] = set[i][permid]

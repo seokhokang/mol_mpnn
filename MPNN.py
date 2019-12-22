@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import sys, time, warnings
+from util import _permutation
 from rdkit import Chem, rdBase
 from sklearn.metrics import mean_absolute_error
 
@@ -86,7 +87,7 @@ class Model(object):
             for epoch in range(max_epoch):
     
                 # training
-                [DV_trn, DE_trn, DP_trn, DY_trn] = self._permutation([DV_trn, DE_trn, DP_trn, DY_trn])
+                [DV_trn, DE_trn, DP_trn, DY_trn] = _permutation([DV_trn, DE_trn, DP_trn, DY_trn])
                 
                 trnscores = np.zeros(n_batch) 
                 if epoch > 0:
@@ -146,15 +147,6 @@ class Model(object):
         DY_tst_hat = np.concatenate(DY_tst_hat, 0)
 
         return DY_tst_hat      
-
-
-    def _permutation(self, set):
-    
-        permid = np.random.permutation(len(set[0]))
-        for i in range(len(set)):
-            set[i] = set[i][permid]
-    
-        return set
         
     
     def _MP(self, batch_size, node, edge, n_step, hiddendim):
