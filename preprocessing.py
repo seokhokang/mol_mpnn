@@ -73,7 +73,7 @@ for i, mol in enumerate(molsuppl):
     proximity[:n_atom, :n_atom] = euclidean_distances(pos)
 
     # property DY    
-    pid = np.where(molprops[:,0]=='gdb_'+str(i+1))[0][0]
+    pid = np.where(molprops[:,0]==mol.GetProp('_Name'))[0][0]
     property = molprops[pid, 4:16]
 
     # append
