@@ -4,7 +4,6 @@ import csv, sys
 from util import _permutation
 from MPNN import Model
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 n_max=29
 dim_node=25
@@ -42,13 +41,11 @@ DE_tst = DE[-n_tst:]
 DP_tst = DP[-n_tst:]
 DY_tst = DY[-n_tst:]
 
-model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y, dr=0, lr=0.0001)
+model = Model(n_max, dim_node, dim_edge, dim_atom, dim_y)
 with model.sess:
     model.saver.restore(model.sess, save_path)  
-    DY_tst_hat = model.test(DV_tst, DE_tst, DP_tst)
+    maelist = model.test_mae(DV_tst, DE_tst, DP_tst, DY_tst, 30)
     
 np.set_printoptions(precision=5, suppress=True)
-maelist = np.array([mean_absolute_error(DY_tst[:,yid:yid+1], DY_tst_hat[:,yid:yid+1]) for yid in range(dim_y)])
-mae = np.sum(maelist)
-print(':: MAE ', mae, mae/dim_y)
+print(':: MAE ', np.sum(maelist))
 print(':: list ', maelist) 

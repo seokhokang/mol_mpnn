@@ -7,11 +7,10 @@ from rdkit.Chem import AllChem, ChemicalFeatures
 from sklearn.metrics.pairwise import euclidean_distances
 import pandas as pds
 
-
 # QM9 dataset can be downloaded from
 # http://deepchem.io.s3-website-us-west-1.amazonaws.com/datasets/gdb9.tar.gz
 molsuppl = Chem.SDMolSupplier('./gdb9.sdf', removeHs=False)
-molprops = np.array(pds.read_csv('./gdb9.sdf.csv').as_matrix())
+molprops = np.array(pds.read_csv('./gdb9.sdf.csv').to_numpy())
 
 n_max=29
 dim_node=25
@@ -58,7 +57,7 @@ for i, mol in enumerate(molsuppl):
     # node DV
     node = np.zeros((n_max, dim_node), dtype=np.int8)
     for j in range(n_atom):
-        node[j, :] = atomFeatures(j, mol, rings, donor_list, acceptor_list)
+        node[j, :] = atomFeatures(j, mol, rings, donor_list, acceptor_list, atom_list)
     
     # edge DE
     edge = np.zeros((n_max, n_max, dim_edge), dtype=np.int8)
@@ -84,7 +83,7 @@ for i, mol in enumerate(molsuppl):
     Dsmi.append(smi)
 
     if i % 1000 == 0:
-        print(i+1, Chem.MolToSmiles(Chem.RemoveHs(mol)), property, flush=True)
+        print(i, Chem.MolToSmiles(Chem.RemoveHs(mol)), flush=True)
 
 # np array    
 DV = np.asarray(DV, dtype=np.int8)

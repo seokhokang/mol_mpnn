@@ -1,11 +1,6 @@
 import numpy as np
 from rdkit import Chem
 
-n_max=29
-dim_node=25
-dim_edge=11
-atom_list=['H','C','N','O','F']
-
 def _permutation(set, seed = 134):
 
     np.random.seed(seed)
@@ -26,7 +21,7 @@ def to_onehot(val, cat):
 
     return vec
 
-def atomFeatures(aid, mol, rings, donor_list, acceptor_list):
+def atomFeatures(aid, mol, rings, donor_list, acceptor_list, atom_list):
 
     def _rings(aid, rings):
 
