@@ -62,9 +62,9 @@ class Model(object):
         vars_MP = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MP')
         vars_Y = [tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='Y/'+str(yid)+'/readout') for yid in range(self.dim_y)]
 
-        lr_list = [1e-3, 1e-4, 1e-5, 1e-6]
+        lr_list = np.array([1e-3, 1e-4, 1e-5])
         train_op_total = [tf.train.AdamOptimizer(learning_rate = lr).minimize(cost_Y_total + l2_loss) for lr in lr_list]
-        train_op_indiv = [[tf.train.AdamOptimizer(learning_rate = lr).minimize(cost_Y_indiv[yid] + l2_loss, var_list=vars_Y[yid]) for lr in lr_list[1:]] for yid in range(self.dim_y)] 
+        train_op_indiv = [[tf.train.AdamOptimizer(learning_rate = lr).minimize(cost_Y_indiv[yid] + l2_loss, var_list=vars_Y[yid]) for lr in lr_list * 0.1] for yid in range(self.dim_y)] 
                 
         self.sess.run(tf.initializers.global_variables())            
         np.set_printoptions(precision=5, suppress=True)
@@ -109,7 +109,7 @@ class Model(object):
                         trnscores[i] = trnresult[1]
                     
                     trn_log[epoch] = np.mean(trnscores)        
-                    print('--training with lr:', lr_list[lr_id], 'yid: ', yid, ' epoch id: ', epoch, ' trn log: ', trn_log[epoch])
+                    print('--training with lr_id:', lr_id, 'yid: ', yid, ' epoch id: ', epoch, ' trn log: ', trn_log[epoch])
                 
                 # validation
                 val_mae = self.test_mae(DV_val, DE_val, DP_val, DY_val, 5)
