@@ -18,15 +18,15 @@ Tensorflow implementation for efficient learning of message passing neural netwo
 ## Results (Mean Absolute Error on Test Set)
 | Property | MAE    |
 |----------|--------|
-| mu       | 0.0349 |
-| alpha    | 0.0141 |
-| HOMO     | 0.0629 |
-| LUMO     | 0.0300 |
-| gap      | 0.0444 |
-| R2       | 0.0057 |
+| mu       | 0.0293 |
+| alpha    | 0.0131 |
+| HOMO     | 0.0557 |
+| LUMO     | 0.0271 |
+| gap      | 0.0395 |
+| R2       | 0.0049 |
 | ZPVE     | 0.0029 |
 | U0       | 0.0013 |
 | U298     | 0.0013 |
 | H298     | 0.0015 |
 | G298     | 0.0013 |
-| Cv       | 0.0125 |
+| Cv       | 0.0117 |
